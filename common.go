@@ -23,11 +23,9 @@ var CesnetPen uint32 = 8057
 
 func init() {
 
-	/*
-		╭╶╶╶╶╶╶╶╶┬╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╮
-		│ PHists │ Sizes (SRC ⟶ DST) │
-		╰╴╴╴╴╴╴╴╴┴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╯
-	*/
+	// ╭╶╶╶╶╶╶╶╶┬╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╮
+	// │ PHists │ Sizes (SRC -> DST) │
+	// ╰╴╴╴╴╴╴╴╴┴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╯
 
 	flows.RegisterFeature(
 		ipfix.NewBasicList(
@@ -48,11 +46,9 @@ func init() {
 		},
 		flows.RawPacket)
 
-	/*
-		╭╶╶╶╶╶╶╶╶┬╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╮
-		│ PHists │ Inter Packet Time (SRC ⟶ DST) │
-		╰╴╴╴╴╴╴╴╴┴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╯
-	*/
+	// ╭╶╶╶╶╶╶╶╶┬╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╮
+	// │ PHists │ Inter Packet Time (SRC -> DST) │
+	// ╰╴╴╴╴╴╴╴╴┴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╯
 
 	flows.RegisterFeature(
 		ipfix.NewBasicList(
@@ -73,11 +69,9 @@ func init() {
 		},
 		flows.RawPacket)
 
-	/*
-		╭╶╶╶╶╶╶╶╶┬╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╮
-		│ PHists │ Sizes (DST ⟶ SRC) │
-		╰╴╴╴╴╴╴╴╴┴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╯
-	*/
+	// ╭╶╶╶╶╶╶╶╶┬╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╮
+	// │ PHists │ Sizes (DST -> SRC) │
+	// ╰╴╴╴╴╴╴╴╴┴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╯
 
 	flows.RegisterFeature(
 		ipfix.NewBasicList(
@@ -98,11 +92,9 @@ func init() {
 		},
 		flows.RawPacket)
 
-	/*
-		╭╶╶╶╶╶╶╶╶┬╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╮
-		│ PHists │ Inter Packet Time (DST ⟶ SRC) │
-		╰╴╴╴╴╴╴╴╴┴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╯
-	*/
+	// ╭╶╶╶╶╶╶╶╶┬╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╮
+	// │ PHists │ Inter Packet Time (DST -> SRC) │
+	// ╰╴╴╴╴╴╴╴╴┴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╯
 
 	flows.RegisterFeature(
 		ipfix.NewBasicList(
@@ -123,11 +115,9 @@ func init() {
 		},
 		flows.RawPacket)
 
-	/*
-		╭╶╶╶╶╶╶╶╶┬╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╮
-		│ PStats │ Packet Payload Length │
-		╰╴╴╴╴╴╴╴╴┴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╯
-	*/
+	// ╭╶╶╶╶╶╶╶╶┬╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╮
+	// │ PStats │ Packet Payload Length │
+	// ╰╴╴╴╴╴╴╴╴┴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╯
 
 	flows.RegisterFeature(
 		ipfix.NewBasicList(
@@ -144,11 +134,9 @@ func init() {
 		func() flows.Feature { return &pktLengths{pstats: makePstats()} },
 		flows.RawPacket)
 
-	/*
-		╭╶╶╶╶╶╶╶╶┬╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╮
-		│ PStats │ Packet Payload Length │
-		╰╴╴╴╴╴╴╴╴┴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╯
-	*/
+	// ╭╶╶╶╶╶╶╶╶┬╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╮
+	// │ PStats │ Packet Payload Length │
+	// ╰╴╴╴╴╴╴╴╴┴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╯
 
 	flows.RegisterFeature(
 		ipfix.NewBasicList(
@@ -165,11 +153,9 @@ func init() {
 		func() flows.Feature { return &pktTimes{pstats: makePstats()} },
 		flows.RawPacket)
 
-	/*
-		╭╶╶╶╶╶╶╶╶┬╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╮
-		│ PStats │ TCP Packet Flags │
-		╰╴╴╴╴╴╴╴╴┴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╯
-	*/
+	// ╭╶╶╶╶╶╶╶╶┬╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╮
+	// │ PStats │ TCP Packet Flags │
+	// ╰╴╴╴╴╴╴╴╴┴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╯
 
 	flows.RegisterFeature(
 		ipfix.NewBasicList(
@@ -186,11 +172,9 @@ func init() {
 		func() flows.Feature { return &pktFlags{pstats: makePstats()} },
 		flows.RawPacket)
 
-	/*
-		╭╶╶╶╶╶╶╶╶┬╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╮
-		│ PStats │ Packet directions │
-		╰╴╴╴╴╴╴╴╴┴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╯
-	*/
+	// ╭╶╶╶╶╶╶╶╶┬╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╮
+	// │ PStats │ Packet directions │
+	// ╰╴╴╴╴╴╴╴╴┴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╯
 
 	flows.RegisterFeature(
 		ipfix.NewBasicList(
