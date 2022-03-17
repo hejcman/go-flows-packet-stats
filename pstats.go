@@ -6,7 +6,6 @@ import (
 
 	"github.com/CN-TU/go-flows/flows"
 	"github.com/CN-TU/go-flows/packet"
-	"github.com/CN-TU/go-ipfix"
 )
 
 /*
@@ -49,7 +48,7 @@ type pktLengths struct {
 	pktLengths []uint16
 }
 
-func (p *pktLengths) Event(new interface{}, context *flows.EventContext, _ interface{}) {
+func (p *pktLengths) Event(new interface{}, _ *flows.EventContext, _ interface{}) {
 	if uint(len(p.pktLengths)) != p.maxElemCount {
 		buf := new.(packet.Buffer)
 		p.pktLengths = append(p.pktLengths, uint16(buf.PayloadLength()))
@@ -97,7 +96,7 @@ type pktDirections struct {
 	pktDirections []int8
 }
 
-func (p *pktDirections) Event(new interface{}, context *flows.EventContext, _ interface{}) {
+func (p *pktDirections) Event(new interface{}, _ *flows.EventContext, _ interface{}) {
 	if uint(len(p.pktDirections)) == p.maxElemCount {
 		return
 	}
@@ -125,7 +124,7 @@ func (p *pktDirections) Stop(_ flows.FlowEndReason, context *flows.EventContext)
 
 type pktFlags struct {
 	pstats
-	pktFlags []uint8
+	pktFlags []uint16
 }
 
 func (p *pktFlags) Event(new interface{}, _ *flows.EventContext, _ interface{}) {
@@ -133,119 +132,58 @@ func (p *pktFlags) Event(new interface{}, _ *flows.EventContext, _ interface{}) 
 		return
 	}
 
-	buf := new.(packet.Buffer)
-
-	if layer := buf.Layer(layers.LayerTypeTCP); layer != nil {
-
+	tcp := new.(packet.Buffer).TransportLayer()
+	if tcp == nil {
+		return
 	}
+
+	tcpContents, _ := tcp.(*layers.TCP)
+	if tcpContents == nil {
+		return
+	}
+	var tmpFlag uint8 = 0
+
+	// ╭╶╶╶╶╶╶┬╶╶╶╶╶╶╶╶╶╶╶┬╶╶╶╶╶╮
+	// │ Flag │ Binary    │ Dec │
+	// ├╶╶╶╶╶╶┼╶╶╶╶╶╶╶╶╶╶╶┼╶╶╶╶╶┤
+	// │ FIN  │ 0000 0001 │   1 │
+	// │ SYN  │ 0000 0010 │   2 │
+	// │ RST  │ 0000 0100 │   4 │
+	// │ PSH  │ 0000 1000 │   8 │
+	// │ ACK  │ 0001 0000 │  16 │
+	// │ URG  │ 0010 0000 │  32 │
+	// │ ECE  │ 0100 0000 │  64 │
+	// │ CWR  │ 1000 0000 │ 128 │
+	// ╰╴╴╴╴╴╴┴╴╴╴╴╴╴╴╴╴╴╴┴╴╴╴╴╴╯
+
+	if tcpContents.FIN {
+		tmpFlag |= 1
+	}
+	if tcpContents.SYN {
+		tmpFlag |= 2
+	}
+	if tcpContents.RST {
+		tmpFlag |= 4
+	}
+	if tcpContents.PSH {
+		tmpFlag |= 8
+	}
+	if tcpContents.ACK {
+		tmpFlag |= 16
+	}
+	if tcpContents.URG {
+		tmpFlag |= 32
+	}
+	if tcpContents.ECE {
+		tmpFlag |= 64
+	}
+	if tcpContents.CWR {
+		tmpFlag |= 128
+	}
+	println(tmpFlag)
+	p.pktFlags = append(p.pktFlags, uint16(tmpFlag))
 }
 
 func (p *pktFlags) Stop(_ flows.FlowEndReason, context *flows.EventContext) {
 	p.BaseFeature.SetValue(p.pktFlags, context, p)
-}
-
-/*
-╭╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╮
-│ Init function │
-╰╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╯
-*/
-
-func init() {
-
-	// https://github.com/CESNET/libfds/blob/0302f9c3583bd14b96680100e49a99dadf64e13b/config/system/elements/cesnet.xml#L421
-	flows.RegisterFeature(
-		ipfix.NewBasicList(
-			"packetLength",
-			ipfix.NewInformationElement(
-				"packetLength",
-				CesnetPen,
-				1013,
-				ipfix.Signed16Type,
-				0),
-			0),
-		"sizes of the first packets",
-		flows.FlowFeature,
-		func() flows.Feature { return &pktLengths{pstats: makePstats()} },
-		flows.RawPacket)
-
-	// https://github.com/CESNET/libfds/blob/0302f9c3583bd14b96680100e49a99dadf64e13b/config/system/elements/cesnet.xml#L428
-	flows.RegisterFeature(
-		ipfix.NewBasicList(
-			"packetTime",
-			ipfix.NewInformationElement(
-				"packetTime",
-				CesnetPen,
-				1014,
-				ipfix.DateTimeMillisecondsType,
-				0),
-			0),
-		"timestamps of the first packets",
-		flows.FlowFeature,
-		func() flows.Feature { return &pktTimes{pstats: makePstats()} },
-		flows.RawPacket)
-
-	// https://github.com/CESNET/libfds/blob/0302f9c3583bd14b96680100e49a99dadf64e13b/config/system/elements/cesnet.xml#L435
-	flows.RegisterFeature(
-		ipfix.NewBasicList(
-			"packetFlag",
-			ipfix.NewInformationElement(
-				"packetFlag",
-				CesnetPen,
-				1015,
-				ipfix.Unsigned8Type,
-				0),
-			0),
-		"TCP flags for each packet",
-		flows.FlowFeature,
-		func() flows.Feature { return &pktFlags{pstats: makePstats()} },
-		flows.RawPacket)
-
-	// https://github.com/CESNET/libfds/blob/0302f9c3583bd14b96680100e49a99dadf64e13b/config/system/elements/cesnet.xml#L442
-	flows.RegisterFeature(
-		ipfix.NewBasicList(
-			"packetDirection",
-			ipfix.NewInformationElement(
-				"packetDirection",
-				CesnetPen,
-				1016,
-				ipfix.Signed8Type,
-				0),
-			0),
-		"directions of the first packets",
-		flows.FlowFeature,
-		func() flows.Feature { return &pktDirections{pstats: makePstats()} },
-		flows.RawPacket)
-
-	//flows.RegisterTemporaryFeature(
-	//	"__ppiPktLengths",
-	//	"sizes of the first packets",
-	//	ipfix.BasicListType,
-	//	0,
-	//	flows.FlowFeature,
-	//	func() flows.Feature { return &pktLengths{pstats: makePstats()} },
-	//	flows.RawPacket)
-	//flows.RegisterTemporaryFeature(
-	//	"__ppiPktTimes",
-	//	"timestamps of the first packets",
-	//	ipfix.BasicListType,
-	//	0,
-	//	flows.FlowFeature,
-	//	func() flows.Feature { return &pktTimes{pstats: makePstats()} },
-	//	flows.RawPacket)
-	//flows.RegisterTemporaryFeature(
-	//	"__ppiPktDirections",
-	//	"directions of the first packets",
-	//	ipfix.BasicListType,
-	//	0,
-	//	flows.FlowFeature,
-	//	func() flows.Feature { return &pktDirections{pstats: makePstats()} },
-	//	flows.RawPacket)
-	//flows.RegisterTemporaryFeature(
-	//	"__ppiPktFlags",
-	//	"TCP flags for each packet",
-	//	ipfix.BasicListType,
-	//	0,
-	//	flows.FlowFeature,
-	//	func() flows.Feature { return &pktFlags{pstats: makePstats()} },
-	//	flows.RawPacket)
 }
