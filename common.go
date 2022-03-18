@@ -13,9 +13,15 @@ import (
 ╰╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╯
 */
 
-// CesnetPen is the pen of CESNET, as defined by RFC 7013
-// https://datatracker.ietf.org/doc/html/draft-ietf-ipfix-ie-doctors#section-10.1
-var CesnetPen uint32 = 8057
+var (
+	// CesnetPen is the pen of CESNET, as defined by RFC 7013
+	// https://datatracker.ietf.org/doc/html/draft-ietf-ipfix-ie-doctors#section-10.1
+	CesnetPen uint32 = 8057
+
+	// includeZeroes specifies whether packets with a payload length of 0 bytes should be included
+	// in the packet statistics.
+	includeZeroes = false
+)
 
 /*
 ╭╶╶╶╶╶╶╶╶╶╶╶╶╶╶╶╮
@@ -43,7 +49,7 @@ func init() {
 		flows.FlowFeature,
 		func() flows.Feature {
 			return &phistsSizes{
-				phists: makePhists(true, true),
+				phists: makePhists(true),
 				sizes:  []uint16{0, 0, 0, 0, 0, 0, 0, 0}}
 		},
 		flows.RawPacket)
@@ -66,7 +72,7 @@ func init() {
 		flows.FlowFeature,
 		func() flows.Feature {
 			return &phistsIpt{
-				phists: makePhists(true, true),
+				phists: makePhists(true),
 				times:  []uint16{0, 0, 0, 0, 0, 0, 0, 0}}
 		},
 		flows.RawPacket)
@@ -89,7 +95,7 @@ func init() {
 		flows.FlowFeature,
 		func() flows.Feature {
 			return &phistsSizes{
-				phists: makePhists(false, true),
+				phists: makePhists(false),
 				sizes:  []uint16{0, 0, 0, 0, 0, 0, 0, 0}}
 		},
 		flows.RawPacket)
@@ -112,7 +118,7 @@ func init() {
 		flows.FlowFeature,
 		func() flows.Feature {
 			return &phistsIpt{
-				phists: makePhists(false, true),
+				phists: makePhists(false),
 				times:  []uint16{0, 0, 0, 0, 0, 0, 0, 0}}
 		},
 		flows.RawPacket)

@@ -18,14 +18,11 @@ type phists struct {
 	// direction is based on IANA IPFIX flowDirection element (ID 61). 0x00 signifies ingress, 0x01 signifies egress.
 	// Thus, false means ingress (incoming packets) and true means egress (outgoing packets).
 	direction bool
-	// includeZeroes is used to decide whether packets with 0 length payload should be included in the statistics.
-	includeZeroes bool
 }
 
-func makePhists(direction, includeZeroes bool) phists {
+func makePhists(direction bool) phists {
 	p := phists{}
 	p.direction = direction
-	p.includeZeroes = includeZeroes
 	return p
 }
 
@@ -49,12 +46,9 @@ func (p *phistsIpt) Start(context *flows.EventContext) {
 
 func (p *phistsIpt) Event(new interface{}, context *flows.EventContext, _ interface{}) {
 
-	// Skip zero length packets.
-	if new.(packet.Buffer).PayloadLength() == 0 && p.includeZeroes == false {
+	if new.(packet.Buffer).PayloadLength() == 0 && includeZeroes == false {
 		return
 	}
-
-	// Making sure to only look at the correct direction of packets.
 	if new.(packet.Buffer).LowToHigh() == p.direction {
 		return
 	}
@@ -104,12 +98,9 @@ type phistsSizes struct {
 
 func (p *phistsSizes) Event(new interface{}, _ *flows.EventContext, _ interface{}) {
 
-	// Skip zero length packets.
-	if new.(packet.Buffer).PayloadLength() == 0 && p.includeZeroes == false {
+	if new.(packet.Buffer).PayloadLength() == 0 && includeZeroes == false {
 		return
 	}
-
-	// Making sure to only look at the correct direction of packets.
 	if new.(packet.Buffer).LowToHigh() == p.direction {
 		return
 	}

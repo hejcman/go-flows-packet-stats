@@ -21,9 +21,6 @@ type pstats struct {
 	// maxElemCount contains the number of packets, for which stats should be gathered.
 	// In essence, it is the length of all the IPFIX lists outputed by this feature.
 	maxElemCount uint
-	// skipZeroes discards packets with a payload length of 0, so that the output lists
-	// will not contain any 0 elements.
-	skipZeroes bool
 	// skipDup skips duplicated (retransmitted) TCP packets.
 	skipDup bool
 }
@@ -32,7 +29,6 @@ type pstats struct {
 func makePstats() pstats {
 	p := pstats{}
 	p.maxElemCount = 30
-	p.skipZeroes = true
 	p.skipDup = false
 	return p
 }
@@ -55,7 +51,7 @@ func (p *pktLengths) Event(new interface{}, _ *flows.EventContext, _ interface{}
 	}
 
 	buf := new.(packet.Buffer)
-	if p.skipZeroes && buf.PayloadLength() == 0 {
+	if buf.PayloadLength() == 0 && includeZeroes == false {
 		return
 	}
 
@@ -83,7 +79,7 @@ func (p *pktTimes) Event(new interface{}, _ *flows.EventContext, _ interface{}) 
 	}
 
 	buf := new.(packet.Buffer)
-	if p.skipZeroes && buf.PayloadLength() == 0 {
+	if buf.PayloadLength() == 0 && includeZeroes == false {
 		return
 	}
 
@@ -115,7 +111,7 @@ func (p *pktDirections) Event(new interface{}, _ *flows.EventContext, _ interfac
 	}
 
 	buf := new.(packet.Buffer)
-	if p.skipZeroes && buf.PayloadLength() == 0 {
+	if buf.PayloadLength() == 0 && includeZeroes == false {
 		return
 	}
 
@@ -150,7 +146,7 @@ func (p *pktFlags) Event(new interface{}, _ *flows.EventContext, _ interface{}) 
 	}
 
 	buf := new.(packet.Buffer)
-	if p.skipZeroes && buf.PayloadLength() == 0 {
+	if buf.PayloadLength() == 0 && includeZeroes == false {
 		return
 	}
 
