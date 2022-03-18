@@ -32,7 +32,7 @@ type pstats struct {
 func makePstats() pstats {
 	p := pstats{}
 	p.maxElemCount = 30
-	p.skipZeroes = false
+	p.skipZeroes = true
 	p.skipDup = false
 	return p
 }
@@ -49,10 +49,17 @@ type pktLengths struct {
 }
 
 func (p *pktLengths) Event(new interface{}, _ *flows.EventContext, _ interface{}) {
-	if uint(len(p.pktLengths)) != p.maxElemCount {
-		buf := new.(packet.Buffer)
-		p.pktLengths = append(p.pktLengths, uint16(buf.PayloadLength()))
+
+	if uint(len(p.pktLengths)) == p.maxElemCount {
+		return
 	}
+
+	buf := new.(packet.Buffer)
+	if p.skipZeroes && buf.PayloadLength() == 0 {
+		return
+	}
+
+	p.pktLengths = append(p.pktLengths, uint16(buf.PayloadLength()))
 }
 
 func (p *pktLengths) Stop(_ flows.FlowEndReason, context *flows.EventContext) {
@@ -71,10 +78,16 @@ type pktTimes struct {
 }
 
 func (p *pktTimes) Event(new interface{}, _ *flows.EventContext, _ interface{}) {
-	if uint(len(p.pktTimes)) != p.maxElemCount {
-		buf := new.(packet.Buffer)
-		p.pktTimes = append(p.pktTimes, buf.Metadata().Timestamp)
+	if uint(len(p.pktTimes)) == p.maxElemCount {
+		return
 	}
+
+	buf := new.(packet.Buffer)
+	if p.skipZeroes && buf.PayloadLength() == 0 {
+		return
+	}
+
+	p.pktTimes = append(p.pktTimes, buf.Metadata().Timestamp)
 }
 
 func (p *pktTimes) Stop(_ flows.FlowEndReason, context *flows.EventContext) {
@@ -101,8 +114,12 @@ func (p *pktDirections) Event(new interface{}, _ *flows.EventContext, _ interfac
 		return
 	}
 
-	// TODO: Use context?
 	buf := new.(packet.Buffer)
+	if p.skipZeroes && buf.PayloadLength() == 0 {
+		return
+	}
+
+	// TODO: Use context?
 	var dir int8
 	if buf.LowToHigh() {
 		dir = -1
@@ -132,7 +149,12 @@ func (p *pktFlags) Event(new interface{}, _ *flows.EventContext, _ interface{}) 
 		return
 	}
 
-	tcp := new.(packet.Buffer).TransportLayer()
+	buf := new.(packet.Buffer)
+	if p.skipZeroes && buf.PayloadLength() == 0 {
+		return
+	}
+
+	tcp := buf.TransportLayer()
 	if tcp == nil {
 		return
 	}
@@ -180,7 +202,6 @@ func (p *pktFlags) Event(new interface{}, _ *flows.EventContext, _ interface{}) 
 	if tcpContents.CWR {
 		tmpFlag |= 128
 	}
-	println(tmpFlag)
 	p.pktFlags = append(p.pktFlags, uint16(tmpFlag))
 }
 
